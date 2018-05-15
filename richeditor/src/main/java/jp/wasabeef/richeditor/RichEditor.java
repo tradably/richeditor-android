@@ -387,6 +387,16 @@ public class RichEditor extends WebView {
     exec("javascript:RE.blurFocus();");
   }
 
+  public void setHighlightOptions(String regex, ArrayList<String> words) {
+      ArrayList<String> jvWords = new ArrayList<String>();
+      for (String word: words) {
+          jvWords.add("'" + word + "'");
+      }
+
+      String wordList = TextUtils.join(",", jvWords);
+      exec("javascript:RE.setHighlightOptions('" + regex "', [" + wordList + "]);");
+  }
+
   private String convertHexColorString(int color) {
     return String.format("#%06X", (0xFFFFFF & color));
   }

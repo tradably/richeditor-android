@@ -41,3 +41,7 @@ body {
   content: attr(placeholder);
   opacity: .5;
 }}
+
+.hashtag {
+    background: #BFE4DD;
+}

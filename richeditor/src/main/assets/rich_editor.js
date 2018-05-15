@@ -301,6 +301,14 @@ RE.removeFormat = function() {
     document.execCommand('removeFormat', false, null);
 }
 
+RE.setHighlightOptions = function(regex, words) {
+    RE.highlightOption = {
+        regex: regex,
+        words: words
+    }
+    updateEditor();
+};
+
 // Event Listeners
 RE.editor.addEventListener("input", RE.callback);
 RE.editor.addEventListener("keyup", function(e) {
@@ -310,3 +318,111 @@ RE.editor.addEventListener("keyup", function(e) {
     }
 });
 RE.editor.addEventListener("click", RE.enabledEditingItems);
+
+// Helper functions
+
+function getTextSegments(element) {
+    const textSegments = [];
+    Array.from(element.childNodes).forEach((node) => {
+        switch(node.nodeType) {
+            case Node.TEXT_NODE:
+                let nodeValue = node.nodeValue
+                textSegments.push({text: nodeValue, node});
+                break;
+            case Node.ELEMENT_NODE:
+                if (node.tagName === 'BR') {
+                    textSegments.push({
+                        text: "\n",
+                        node
+                    })
+                } else {
+                    textSegments.splice(textSegments.length, 0, ...(getTextSegments(node)));
+                }
+                break;
+            default:
+                break;
+                // throw new Error(`Unexpected node type: ${node.nodeType}`);
+        }
+    });
+    return textSegments;
+}
+
+function updateEditor() {
+    if (!RE.highlightOption) {
+        return;
+    }
+    const sel = window.getSelection();
+    const textSegments = getTextSegments(RE.editor);
+
+    let anchorIndex = null;
+    let focusIndex = null;
+    let currentIndex = 0;
+    textSegments.forEach(({text, node}) => {
+        if (node === sel.anchorNode) {
+            anchorIndex = currentIndex + sel.anchorOffset;
+        }
+        if (node === sel.focusNode) {
+            focusIndex = currentIndex + sel.focusOffset;
+        }
+
+        currentIndex += text.length;
+    });
+    editor.innerHTML = renderText(editor.innerHTML);
+    if (anchorIndex !== null && focusIndex !== null)  {
+        restoreSelection(anchorIndex, focusIndex);
+    } else {
+        RE.focus()
+    }
+}
+
+function restoreSelection(absoluteAnchorIndex, absoluteFocusIndex) {
+    const sel = window.getSelection();
+    const textSegments = getTextSegments(RE.editor);
+    let anchorNode = editor;
+    let anchorIndex = 0;
+    let focusNode = editor;
+    let focusIndex = 0;
+    let currentIndex = 0;
+    textSegments.forEach(({text, node}) => {
+        const startIndexOfNode = currentIndex;
+        const endIndexOfNode = startIndexOfNode + text.length;
+        if (startIndexOfNode <= absoluteAnchorIndex && absoluteAnchorIndex <= endIndexOfNode) {
+            anchorNode = node;
+            anchorIndex = absoluteAnchorIndex - startIndexOfNode;
+        }
+        if (startIndexOfNode <= absoluteFocusIndex && absoluteFocusIndex <= endIndexOfNode) {
+            focusNode = node;
+            focusIndex = absoluteFocusIndex - startIndexOfNode;
+        }
+        currentIndex += text.length;
+    });
+
+    sel.setBaseAndExtent(anchorNode, anchorIndex, focusNode, focusIndex);
+}
+
+
+function renderText(text) {
+    let tmp = text.replace(/<span class="hashtag">(.*?)<\/span>/gi, '$1')
+    if (RE.highlightOption) {
+        if (RE.highlightOption.regex && RE.highlightOption.regex !== '') {
+            try {
+                let regex = new RegExp(RE.highlightOption.regex)
+
+                let matches = text.match(regex)
+                if (matches && matches.length > 0) {
+                    for (let match of matches) {
+                        tmp = tmp.replace(match, `<span class="hashtag">${match}</span>`)
+                    }
+                }
+            } catch(err) {
+
+            }
+        }
+        if (RE.highlightOption.words) {
+            for (let word of RE.highlightOption.words) {
+                tmp = tmp.replace(new RegExp(word, 'g'), `<span class="hashtag">${word}</span>`);
+            }
+        }
+    }
+    return tmp
+}
