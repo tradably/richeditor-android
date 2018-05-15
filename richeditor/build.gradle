@@ -14,14 +14,14 @@ android {
   }
 }
 
-publish {
-  userOrg = POM_DEVELOPER_ID
-  groupId = GROUP
-  artifactId = ARTIFACT_ID
-  publishVersion = VERSION_NAME
-  desc = POM_DESCRIPTION
-  website = POM_URL
-  bintrayUser = BINTRAY_USER
-  bintrayKey = BINTRAY_API_KEY
-  autoPublish = false
-}
+//publish {
+//  userOrg = POM_DEVELOPER_ID
+//  groupId = GROUP
+//  artifactId = ARTIFACT_ID
+//  publishVersion = VERSION_NAME
+//  desc = POM_DESCRIPTION
+//  website = POM_URL
+//  bintrayUser = BINTRAY_USER
+//  bintrayKey = BINTRAY_API_KEY
+//  autoPublish = false
+//}
