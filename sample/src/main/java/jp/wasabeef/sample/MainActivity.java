@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+
 import jp.wasabeef.richeditor.RichEditor;
 
 public class MainActivity extends AppCompatActivity {
@@ -18,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     mEditor = (RichEditor) findViewById(R.id.editor);
     mEditor.setEditorHeight(200);
     mEditor.setEditorFontSize(22);
-    mEditor.setEditorFontColor(Color.RED);
+//    mEditor.setEditorFontColor(Color.RED);
     //mEditor.setEditorBackgroundColor(Color.BLUE);
     //mEditor.setBackgroundColor(Color.BLUE);
     //mEditor.setBackgroundResource(R.drawable.bg);
@@ -31,6 +34,16 @@ public class MainActivity extends AppCompatActivity {
     mEditor.setOnTextChangeListener(new RichEditor.OnTextChangeListener() {
       @Override public void onTextChange(String text) {
         mPreview.setText(text);
+      }
+    });
+    mEditor.setOnInitialLoadListener(new RichEditor.AfterInitialLoadListener() {
+      @Override
+      public void onAfterInitialLoad(boolean isReady) {
+        if (isReady) {
+            ArrayList<String> list = new ArrayList<String>();
+            list.add("test");
+          mEditor.setHighlightOptions("([#])([a-z])\\w+", list);
+        }
       }
     });
 

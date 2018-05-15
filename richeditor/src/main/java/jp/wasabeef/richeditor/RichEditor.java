@@ -387,14 +387,24 @@ public class RichEditor extends WebView {
     exec("javascript:RE.blurFocus();");
   }
 
+  private String highlightRegex = "";
+  private ArrayList<String> highlightWords = new ArrayList<>();
   public void setHighlightOptions(String regex, ArrayList<String> words) {
-      ArrayList<String> jvWords = new ArrayList<String>();
-      for (String word: words) {
-          jvWords.add("'" + word + "'");
-      }
+      highlightRegex = regex;
+      highlightWords = words;
+      applyHighlightOptions();
+  }
 
-      String wordList = TextUtils.join(",", jvWords);
-      exec("javascript:RE.setHighlightOptions('" + regex + "', [" + wordList + "]);");
+  private void applyHighlightOptions() {
+    if (!isReady) {
+      return;
+    }
+    ArrayList<String> jvWords = new ArrayList<String>();
+    for (String word: highlightWords) {
+      jvWords.add("'" + word + "'");
+    }
+    String wordList = TextUtils.join(",", jvWords);
+    exec("javascript:RE.setHighlightOptions('" + highlightRegex.replace("\\", "\\\\") + "', [" + wordList + "]);");
   }
 
   private String convertHexColorString(int color) {
@@ -427,6 +437,7 @@ public class RichEditor extends WebView {
       if (mLoadListener != null) {
         mLoadListener.onAfterInitialLoad(isReady);
       }
+      applyHighlightOptions();
     }
 
     @Override public boolean shouldOverrideUrlLoading(WebView view, String url) {

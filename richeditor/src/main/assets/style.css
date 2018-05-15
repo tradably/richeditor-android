@@ -21,6 +21,10 @@ html {
   height: 100%;
 }
 
+.hashtag {
+    background: #BFE4DD;
+}
+
 body {
   overflow: scroll;
   display: table;
@@ -42,6 +46,5 @@ body {
   opacity: .5;
 }}
 
-.hashtag {
-    background: #BFE4DD;
-}
+
+

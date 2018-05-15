@@ -31,6 +31,10 @@ RE.callback = function() {
     window.location.href = "re-callback://" + encodeURI(RE.getHtml());
 }
 
+RE.logCallback = function(text) {
+    window.location.href = "re-callback://" + text;
+}
+
 RE.setHtml = function(contents) {
     RE.editor.innerHTML = decodeURIComponent(contents.replace(/\+/g, '%20'));
 }
@@ -305,7 +309,7 @@ RE.setHighlightOptions = function(regex, words) {
     RE.highlightOption = {
         regex: regex,
         words: words
-    }
+    };
     updateEditor();
 };
 
@@ -314,6 +318,8 @@ RE.editor.addEventListener("input", function() {
     RE.callback();
     updateEditor();
 });
+//RE.editor.addEventListener("input", RE.callback);
+
 RE.editor.addEventListener("keyup", function(e) {
     var KEY_LEFT = 37, KEY_RIGHT = 39;
     if (e.which == KEY_LEFT || e.which == KEY_RIGHT) {
@@ -323,13 +329,12 @@ RE.editor.addEventListener("keyup", function(e) {
 RE.editor.addEventListener("click", RE.enabledEditingItems);
 
 // Helper functions
-
 function getTextSegments(element) {
     const textSegments = [];
     Array.from(element.childNodes).forEach((node) => {
         switch(node.nodeType) {
             case Node.TEXT_NODE:
-                let nodeValue = node.nodeValue
+                let nodeValue = node.nodeValue;
                 textSegments.push({text: nodeValue, node});
                 break;
             case Node.ELEMENT_NODE:
@@ -337,7 +342,7 @@ function getTextSegments(element) {
                     textSegments.push({
                         text: "\n",
                         node
-                    })
+                    });
                 } else {
                     textSegments.splice(textSegments.length, 0, ...(getTextSegments(node)));
                 }
@@ -354,8 +359,9 @@ function updateEditor() {
     if (!RE.highlightOption) {
         return;
     }
+    let editor = RE.editor;
     const sel = window.getSelection();
-    const textSegments = getTextSegments(RE.editor);
+    const textSegments = getTextSegments(editor);
 
     let anchorIndex = null;
     let focusIndex = null;
@@ -374,13 +380,14 @@ function updateEditor() {
     if (anchorIndex !== null && focusIndex !== null)  {
         restoreSelection(anchorIndex, focusIndex);
     } else {
-        RE.focus()
+        RE.focus();
     }
 }
 
 function restoreSelection(absoluteAnchorIndex, absoluteFocusIndex) {
     const sel = window.getSelection();
-    const textSegments = getTextSegments(RE.editor);
+    let editor = RE.editor;
+    const textSegments = getTextSegments(editor);
     let anchorNode = editor;
     let anchorIndex = 0;
     let focusNode = editor;
@@ -405,20 +412,23 @@ function restoreSelection(absoluteAnchorIndex, absoluteFocusIndex) {
 
 
 function renderText(text) {
-    let tmp = text.replace(/<span class="hashtag">(.*?)<\/span>/gi, '$1')
+    let tmp = text.replace(/<span class="hashtag">(.*?)<\/span>/gi, '$1');
     if (RE.highlightOption) {
         if (RE.highlightOption.regex && RE.highlightOption.regex !== '') {
             try {
-                let regex = new RegExp(RE.highlightOption.regex)
+                let regex = new RegExp(RE.highlightOption.regex.replace(/\\/g, '\\'), "gmi");
+//                console.log('raw' + RE.highlightOption.regex);
+//                console.log('complied' + regex);
+                let matches = text.match(regex);
 
-                let matches = text.match(regex)
+//                console.log('matches' + matches);
                 if (matches && matches.length > 0) {
                     for (let match of matches) {
-                        tmp = tmp.replace(match, `<span class="hashtag">${match}</span>`)
+                        tmp = tmp.replace(match, `<span class="hashtag">${match}</span>`);
                     }
                 }
             } catch(err) {
-
+                console.log('error' + err);
             }
         }
         if (RE.highlightOption.words) {
@@ -427,5 +437,5 @@ function renderText(text) {
             }
         }
     }
-    return tmp
+    return tmp;
 }
