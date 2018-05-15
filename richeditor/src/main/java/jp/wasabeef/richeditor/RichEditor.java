@@ -394,7 +394,7 @@ public class RichEditor extends WebView {
       }
 
       String wordList = TextUtils.join(",", jvWords);
-      exec("javascript:RE.setHighlightOptions('" + regex "', [" + wordList + "]);");
+      exec("javascript:RE.setHighlightOptions('" + regex + "', [" + wordList + "]);");
   }
 
   private String convertHexColorString(int color) {
