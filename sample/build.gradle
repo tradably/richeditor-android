@@ -11,15 +11,6 @@ android {
     versionName VERSION_NAME
   }
 
-  signingConfigs {
-    release {
-      storeFile file(keyStoreProperty)
-      keyAlias keyAliasProperty
-      storePassword keyStorePasswordProperty
-      keyPassword keyAliasPasswordProperty
-    }
-  }
-
   buildTypes {
     debug {
       debuggable true
@@ -28,7 +19,6 @@ android {
     release {
       debuggable false
       zipAlignEnabled true
-      signingConfig signingConfigs.release
     }
   }
 }
