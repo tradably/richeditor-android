@@ -310,7 +310,10 @@ RE.setHighlightOptions = function(regex, words) {
 };
 
 // Event Listeners
-RE.editor.addEventListener("input", RE.callback);
+RE.editor.addEventListener("input", function() {
+    RE.callback();
+    updateEditor();
+});
 RE.editor.addEventListener("keyup", function(e) {
     var KEY_LEFT = 37, KEY_RIGHT = 39;
     if (e.which == KEY_LEFT || e.which == KEY_RIGHT) {
